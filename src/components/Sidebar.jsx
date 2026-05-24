@@ -1,22 +1,24 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import {
   BarChart3,
-  CreditCard,
-  Home,
+  Bot,
+  LayoutDashboard,
   LogOut,
   MapPin,
   MessageSquareText,
   Settings,
+  Sparkles,
 } from 'lucide-react'
 import clsx from 'clsx'
 import { useAuth } from '../hooks/useAuth'
 import Button from './Button'
 
 const navItems = [
-  { to: '/dashboard', label: 'Dashboard', icon: BarChart3 },
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/reviews', label: 'Reviews', icon: MessageSquareText },
+  { to: '/ai-replies', label: 'AI Replies', icon: Bot },
+  { to: '/analytics', label: 'Analytics', icon: BarChart3 },
   { to: '/locations', label: 'Locations', icon: MapPin },
-  { to: '/billing', label: 'Billing', icon: CreditCard },
   { to: '/settings', label: 'Settings', icon: Settings },
 ]
 
@@ -30,30 +32,30 @@ export default function Sidebar() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 lg:flex">
-      <aside className="bg-slate-950 text-white lg:fixed lg:inset-y-0 lg:left-0 lg:w-72">
+    <div className="min-h-screen bg-slate-50 lg:flex">
+      <aside className="border-b border-indigo-100 bg-white/95 lg:fixed lg:inset-y-0 lg:left-0 lg:w-72 lg:border-b-0 lg:border-r">
         <div className="flex min-h-full flex-col p-5">
           <Link to="/dashboard" className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-md bg-sky-400 text-slate-950">
-              <Home className="h-5 w-5" />
+            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#7C6CF6] text-white shadow-md shadow-indigo-100">
+              <Sparkles className="h-5 w-5" />
             </span>
             <div>
-              <p className="text-lg font-bold">ReviewPilot AI</p>
-              <p className="text-xs text-slate-400">Reputation command center</p>
+              <p className="text-lg font-semibold text-slate-950">ReviewPilot AI</p>
+              <p className="text-xs text-slate-500">Google review manager</p>
             </div>
           </Link>
 
-          <nav className="mt-8 grid gap-1">
+          <nav className="mt-8 grid gap-1.5">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
                   clsx(
-                    'flex items-center gap-3 rounded-md border px-3 py-2.5 text-sm font-medium transition',
+                    'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition',
                     isActive
-                      ? 'border-sky-400/40 bg-sky-400/15 text-sky-100 shadow-sm'
-                      : 'border-transparent text-slate-300 hover:border-slate-700 hover:bg-slate-900 hover:text-white',
+                      ? 'bg-[#EEF2FF] text-indigo-700 shadow-sm ring-1 ring-indigo-100'
+                      : 'text-slate-600 hover:bg-indigo-50 hover:text-indigo-700',
                   )
                 }
               >
@@ -64,12 +66,11 @@ export default function Sidebar() {
           </nav>
 
           <div className="mt-auto pt-8">
-            <p className="truncate text-xs text-slate-400">{user?.email}</p>
-            <Button
-              variant="ghost"
-              className="mt-3 w-full justify-start text-slate-200 hover:bg-slate-900 hover:text-white"
-              onClick={handleLogout}
-            >
+            <div className="rounded-2xl border border-indigo-100 bg-[#F5F3FF]/70 p-3">
+              <p className="truncate text-xs font-medium text-slate-500">Signed in as</p>
+              <p className="mt-1 truncate text-sm font-semibold text-slate-800">{user?.email}</p>
+            </div>
+            <Button variant="ghost" className="mt-3 w-full justify-start" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
               Logout
             </Button>

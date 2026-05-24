@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link2, MapPin, Plus, RefreshCw } from 'lucide-react'
+import { MapPin, Plus, RefreshCw } from 'lucide-react'
 import Badge from '../components/Badge'
 import Button from '../components/Button'
 import EmptyState from '../components/EmptyState'
+import GoogleConnectCard from '../components/GoogleConnectCard'
 import PageHeader from '../components/PageHeader'
 import {
   getMockGoogleAccounts,
@@ -181,19 +182,20 @@ export default function Locations() {
       <PageHeader
         title="Locations"
         description="Add locations and prepare Google Business Profile linking without exposing Google secrets."
-        actions={
-          <Button onClick={connectGoogleBusiness} loading={googleLoading}>
-            <Link2 className="h-4 w-4" />
-            Connect Google Business
-          </Button>
-        }
       />
-      {error ? <p className="mb-4 rounded-md bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
-      {googleStatus ? <p className="mb-4 rounded-md bg-sky-50 p-3 text-sm text-sky-800">{googleStatus}</p> : null}
+      <div className="mb-5">
+        <GoogleConnectCard
+          connected={locations.some((location) => location.google_connected)}
+          onConnect={connectGoogleBusiness}
+          loading={googleLoading}
+        />
+      </div>
+      {error ? <p className="mb-4 rounded-2xl bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
+      {googleStatus ? <p className="mb-4 rounded-2xl bg-[#F5F3FF] p-3 text-sm text-indigo-700">{googleStatus}</p> : null}
 
       <div className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
-        <form onSubmit={addLocation} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-950">Add location</h2>
+        <form onSubmit={addLocation} className="rounded-2xl border border-indigo-100/70 bg-white p-5 shadow-sm shadow-indigo-50">
+          <h2 className="text-lg font-semibold text-slate-950">Add location</h2>
           <div className="mt-4 space-y-4">
             {[
               ['name', 'Business name', true],
@@ -206,7 +208,7 @@ export default function Locations() {
                   name={name}
                   value={form[name]}
                   onChange={(event) => setForm((current) => ({ ...current, [name]: event.target.value }))}
-                  className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                  className="mt-2 w-full rounded-xl border border-indigo-100 px-3 py-2 outline-none focus:border-[#7C6CF6] focus:ring-2 focus:ring-indigo-100"
                   required={required}
                 />
               </label>
@@ -218,8 +220,8 @@ export default function Locations() {
           </Button>
         </form>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-950">Connected locations</h2>
+        <section className="rounded-2xl border border-indigo-100/70 bg-white p-5 shadow-sm shadow-indigo-50">
+          <h2 className="text-lg font-semibold text-slate-950">Connected locations</h2>
           {loading ? <p className="mt-4 text-sm text-slate-500">Loading locations...</p> : null}
           {!loading && locations.length === 0 ? (
             <div className="mt-4">
@@ -228,9 +230,9 @@ export default function Locations() {
           ) : (
             <div className="mt-4 grid gap-3">
               {locations.map((location) => (
-                <div key={location.id} className="rounded-md border border-slate-200 p-4">
+                <div key={location.id} className="rounded-2xl border border-indigo-100 p-4">
                   <div className="flex items-start gap-3">
-                    <MapPin className="mt-0.5 h-5 w-5 text-sky-700" />
+                    <MapPin className="mt-0.5 h-5 w-5 text-[#7C6CF6]" />
                     <div>
                       <p className="font-semibold text-slate-950">{location.name}</p>
                       <p className="mt-1 text-sm text-slate-600">{location.address}</p>
@@ -251,10 +253,10 @@ export default function Locations() {
         </section>
       </div>
 
-      <section className="mt-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="mt-5 rounded-2xl border border-indigo-100/70 bg-white p-5 shadow-sm shadow-indigo-50">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-lg font-bold text-slate-950">Google Business Profile</h2>
+            <h2 className="text-lg font-semibold text-slate-950">Google Business Profile</h2>
             <p className="mt-1 text-sm text-slate-600">
               OAuth and API calls run through Supabase Edge Functions. Demo data is available only through Demo Mode.
             </p>
@@ -280,7 +282,7 @@ export default function Locations() {
             <select
               value={selectedLocalLocationId}
               onChange={(event) => setSelectedLocalLocationId(event.target.value)}
-              className="mt-2 w-full rounded-md border border-slate-200 bg-white px-3 py-2 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+              className="mt-2 w-full rounded-xl border border-indigo-100 bg-white px-3 py-2 outline-none focus:border-[#7C6CF6] focus:ring-2 focus:ring-indigo-100"
             >
               <option value="">Select local location</option>
               {locations.map((location) => (
@@ -300,7 +302,7 @@ export default function Locations() {
                 setGoogleLocations([])
                 setSelectedGoogleLocationId('')
               }}
-              className="mt-2 w-full rounded-md border border-slate-200 bg-white px-3 py-2 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+              className="mt-2 w-full rounded-xl border border-indigo-100 bg-white px-3 py-2 outline-none focus:border-[#7C6CF6] focus:ring-2 focus:ring-indigo-100"
             >
               <option value="">Select Google account</option>
               {googleAccounts.map((account) => (
@@ -316,7 +318,7 @@ export default function Locations() {
             <select
               value={selectedGoogleLocationId}
               onChange={(event) => setSelectedGoogleLocationId(event.target.value)}
-              className="mt-2 w-full rounded-md border border-slate-200 bg-white px-3 py-2 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+              className="mt-2 w-full rounded-xl border border-indigo-100 bg-white px-3 py-2 outline-none focus:border-[#7C6CF6] focus:ring-2 focus:ring-indigo-100"
             >
               <option value="">Select Google location</option>
               {googleLocations.map((location) => (

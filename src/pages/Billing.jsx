@@ -29,9 +29,9 @@ export default function Billing() {
       />
       <div className="grid gap-4 lg:grid-cols-3">
         {plans.map((plan) => (
-          <section key={plan.name} className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-950">{plan.name}</h2>
-            <p className="mt-3 text-4xl font-bold text-slate-950">
+          <section key={plan.name} className="rounded-2xl border border-indigo-100/70 bg-white p-6 shadow-sm shadow-indigo-50">
+            <h2 className="text-xl font-semibold text-slate-950">{plan.name}</h2>
+            <p className="mt-3 text-3xl font-semibold text-slate-950">
               {plan.price}
               <span className="text-base font-medium text-slate-500">/month</span>
             </p>
@@ -49,7 +49,7 @@ export default function Billing() {
           </section>
         ))}
       </div>
-      <p className="mt-5 rounded-md bg-sky-50 p-4 text-sm text-sky-800">
+      <p className="mt-5 rounded-2xl bg-[#F5F3FF] p-4 text-sm text-indigo-700">
         TODO: Create a Supabase Edge Function that uses STRIPE_SECRET_KEY to create Checkout Sessions. Do not call Stripe secret APIs from the Vite frontend.
       </p>
     </>

@@ -10,7 +10,7 @@ export default function TextArea({ label, className, ...props }) {
       ) : null}
       <textarea
         className={clsx(
-          'min-h-36 w-full rounded-md border border-slate-200 bg-white px-3 py-3 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100',
+          'min-h-36 w-full rounded-2xl border border-indigo-100 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm shadow-indigo-50 outline-none transition placeholder:text-slate-400 focus:border-[#7C6CF6] focus:ring-2 focus:ring-indigo-100',
           className,
         )}
         {...props}

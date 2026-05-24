@@ -1,6 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import Billing from '../pages/Billing'
+import AiReplies from '../pages/AiReplies'
+import Analytics from '../pages/Analytics'
 import Dashboard from '../pages/Dashboard'
 import Landing from '../pages/Landing'
 import Locations from '../pages/Locations'
@@ -25,6 +27,8 @@ export default function AppRoutes() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/reviews" element={<Reviews />} />
         <Route path="/reviews/:id" element={<ReviewDetail />} />
+        <Route path="/ai-replies" element={<AiReplies />} />
+        <Route path="/analytics" element={<Analytics />} />
         <Route path="/locations" element={<Locations />} />
         <Route path="/billing" element={<Billing />} />
         <Route path="/settings" element={<Settings />} />

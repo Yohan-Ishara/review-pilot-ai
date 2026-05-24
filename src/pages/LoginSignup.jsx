@@ -61,41 +61,41 @@ export default function LoginSignup() {
   }
 
   return (
-    <div className="grid min-h-screen bg-slate-100 lg:grid-cols-[1fr_0.95fr]">
-      <section className="hidden bg-slate-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
-        <Link to="/" className="flex items-center gap-3 font-bold">
-          <span className="grid h-10 w-10 place-items-center rounded-md bg-sky-400 text-slate-950">
+    <div className="grid min-h-screen bg-slate-50 lg:grid-cols-[1fr_0.95fr]">
+      <section className="hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-violet-900 p-10 text-white lg:flex lg:flex-col lg:justify-between">
+        <Link to="/" className="flex items-center gap-3 font-semibold">
+          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-white/10 text-white ring-1 ring-white/15">
             <Star className="h-5 w-5" />
           </span>
           ReviewPilot AI
         </Link>
         <div>
-          <p className="max-w-xl text-5xl font-bold tracking-normal">
+          <p className="max-w-xl text-4xl font-semibold tracking-normal">
             Reply faster, sound human, and keep reputation work under control.
           </p>
-          <p className="mt-5 max-w-lg text-slate-300">
+          <p className="mt-5 max-w-lg text-indigo-100">
             The MVP workspace is ready for Supabase Auth, RLS-protected data, demo reviews, and server-side AI placeholders.
           </p>
         </div>
       </section>
 
       <section className="flex items-center justify-center px-4 py-10">
-        <div className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="w-full max-w-md rounded-2xl border border-indigo-100/70 bg-white p-6 shadow-sm shadow-indigo-50">
           <div className="mb-6">
-            <p className="text-sm font-semibold text-sky-700">Welcome</p>
-            <h1 className="mt-1 text-2xl font-bold text-slate-950">
+            <p className="text-sm font-semibold text-indigo-600">Welcome</p>
+            <h1 className="mt-1 text-2xl font-semibold text-slate-950">
               {mode === 'login' ? 'Log in to your account' : 'Create your workspace'}
             </h1>
           </div>
 
-          <div className="mb-5 grid grid-cols-2 rounded-md bg-slate-100 p-1">
+          <div className="mb-5 grid grid-cols-2 rounded-xl bg-[#EEF2FF] p-1">
             {['login', 'signup'].map((item) => (
               <button
                 key={item}
                 type="button"
                 onClick={() => setMode(item)}
                 className={`rounded-md px-3 py-2 text-sm font-semibold capitalize transition ${
-                  mode === item ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-500'
+                  mode === item ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500'
                 }`}
               >
                 {item}
@@ -112,7 +112,7 @@ export default function LoginSignup() {
                     name="fullName"
                     value={form.fullName}
                     onChange={updateField}
-                    className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                    className="mt-2 w-full rounded-xl border border-indigo-100 px-3 py-2 outline-none focus:border-[#7C6CF6] focus:ring-2 focus:ring-indigo-100"
                     required
                   />
                 </label>
@@ -122,7 +122,7 @@ export default function LoginSignup() {
                     name="companyName"
                     value={form.companyName}
                     onChange={updateField}
-                    className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                    className="mt-2 w-full rounded-xl border border-indigo-100 px-3 py-2 outline-none focus:border-[#7C6CF6] focus:ring-2 focus:ring-indigo-100"
                     required
                   />
                 </label>
@@ -135,7 +135,7 @@ export default function LoginSignup() {
                 name="email"
                 value={form.email}
                 onChange={updateField}
-                className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                className="mt-2 w-full rounded-xl border border-indigo-100 px-3 py-2 outline-none focus:border-[#7C6CF6] focus:ring-2 focus:ring-indigo-100"
                 required
               />
             </label>
@@ -146,13 +146,13 @@ export default function LoginSignup() {
                 name="password"
                 value={form.password}
                 onChange={updateField}
-                className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                className="mt-2 w-full rounded-xl border border-indigo-100 px-3 py-2 outline-none focus:border-[#7C6CF6] focus:ring-2 focus:ring-indigo-100"
                 minLength={6}
                 required
               />
             </label>
             {error ? <p className="rounded-md bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
-            {notice ? <p className="rounded-md bg-sky-50 p-3 text-sm text-sky-700">{notice}</p> : null}
+            {notice ? <p className="rounded-md bg-indigo-50 p-3 text-sm text-indigo-700">{notice}</p> : null}
             <Button type="submit" className="w-full" loading={loading}>
               {mode === 'login' ? 'Log in' : 'Sign up'}
             </Button>

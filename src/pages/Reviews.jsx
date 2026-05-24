@@ -224,30 +224,28 @@ export default function Reviews() {
         }
       />
 
-      {error ? <p className="mb-4 rounded-md bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
-      {lastSyncStatus ? <p className="mb-4 rounded-md bg-emerald-50 p-3 text-sm text-emerald-700">{lastSyncStatus}</p> : null}
+      {error ? <p className="mb-4 rounded-2xl bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
+      {lastSyncStatus ? <p className="mb-4 rounded-2xl bg-emerald-50 p-3 text-sm text-emerald-700">{lastSyncStatus}</p> : null}
 
-      <div className="mb-5 flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-wrap gap-2">
-          {filters.map((filter) => (
-            <button
-              key={filter.key}
-              type="button"
-              onClick={() => setActiveFilter(filter.key)}
-              className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
-                activeFilter === filter.key
-                  ? 'bg-slate-950 text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-950'
-              }`}
-            >
-              {filter.label}
-            </button>
-          ))}
-        </div>
+      <div className="mb-5 grid gap-3 rounded-2xl border border-indigo-100/70 bg-white p-4 shadow-sm shadow-indigo-50 md:grid-cols-[1fr_1fr_auto] md:items-end">
+        <label className="block text-sm font-semibold text-slate-700">
+          Filter reviews
+          <select
+            value={activeFilter}
+            onChange={(event) => setActiveFilter(event.target.value)}
+            className="mt-2 w-full rounded-xl border border-indigo-100 bg-white px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-[#7C6CF6] focus:ring-2 focus:ring-indigo-100"
+          >
+            {filters.map((filter) => (
+              <option key={filter.key} value={filter.key}>{filter.label}</option>
+            ))}
+          </select>
+        </label>
+        <label className="block text-sm font-semibold text-slate-700">
+          Business location
         <select
           value={selectedLocation}
           onChange={(event) => setSelectedLocation(event.target.value)}
-          className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+            className="mt-2 w-full rounded-xl border border-indigo-100 bg-white px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-[#7C6CF6] focus:ring-2 focus:ring-indigo-100"
         >
           <option value="">All locations</option>
           {locations.map((location) => (
@@ -256,6 +254,11 @@ export default function Reviews() {
             </option>
           ))}
         </select>
+        </label>
+        <Button variant="secondary" onClick={handleSyncGoogleReviews} loading={syncing} disabled={!selectedLocation}>
+          <CloudDownload className="h-4 w-4" />
+          Sync Reviews
+        </Button>
       </div>
 
       <div className="mb-4 flex items-center gap-2">

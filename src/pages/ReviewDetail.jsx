@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, CheckCircle, Send, Sparkles } from 'lucide-react'
-import Badge from '../components/Badge'
+import AiReplyCard from '../components/AiReplyCard'
 import Button from '../components/Button'
 import PageHeader from '../components/PageHeader'
+import StarRating from '../components/StarRating'
+import StatusBadge from '../components/StatusBadge'
 import TextArea from '../components/TextArea'
 import { postGoogleReplyWithFallback } from '../lib/googleApi'
 import { generateReviewReplyWithFallback } from '../lib/mockAi'
@@ -185,17 +187,17 @@ export default function ReviewDetail() {
           </Button>
         }
       />
-      {error ? <p className="mb-4 rounded-md bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
-      {message ? <p className="mb-4 rounded-md bg-emerald-50 p-3 text-sm text-emerald-700">{message}</p> : null}
+      {error ? <p className="mb-4 rounded-2xl bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
+      {message ? <p className="mb-4 rounded-2xl bg-emerald-50 p-3 text-sm text-emerald-700">{message}</p> : null}
 
       <div className="grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="rounded-2xl border border-indigo-100/70 bg-white p-5 shadow-sm shadow-indigo-50">
           <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-xl font-bold text-slate-950">{review.reviewer_name}</h2>
-            <p className="text-amber-500">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</p>
-            <Badge tone={review.status === 'replied' ? 'green' : review.rating <= 2 ? 'red' : 'yellow'}>
+            <h2 className="text-xl font-semibold text-slate-950">{review.reviewer_name}</h2>
+            <StarRating rating={review.rating} />
+            <StatusBadge status={review.status}>
               {statusLabel(review.status)}
-            </Badge>
+            </StatusBadge>
           </div>
           <p className="mt-2 text-sm text-slate-500">
             {review.business_locations?.name || 'Selected location'} · {formatDate(review.review_date)}
@@ -203,9 +205,16 @@ export default function ReviewDetail() {
           <p className="mt-5 whitespace-pre-wrap text-sm leading-7 text-slate-700">{review.comment}</p>
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-lg font-bold text-slate-950">Reply draft</h2>
+        <section className="rounded-2xl border border-indigo-100/70 bg-white p-5 shadow-sm shadow-indigo-50">
+          <AiReplyCard
+            reply={reply}
+            onRegenerate={generateReply}
+            regenerating={generating}
+            onUseReply={saveReply}
+            useLabel="Use Reply"
+          />
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold text-slate-950">Edit reply</h2>
             <Button variant="secondary" onClick={generateReply} loading={generating}>
               <Sparkles className="h-4 w-4" />
               Generate Reply
