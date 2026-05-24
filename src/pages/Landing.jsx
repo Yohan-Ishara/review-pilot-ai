@@ -17,7 +17,7 @@ export default function Landing() {
           <Link to="/login" className="text-sm font-semibold text-slate-600 hover:text-slate-950">
             Login
           </Link>
-          <Button as={Link} to="/login" className="hidden sm:inline-flex">
+          <Button as={Link} to="/login" className="hidden !bg-slate-950 !text-white hover:!bg-slate-800 hover:!text-white sm:inline-flex">
             Start free
           </Button>
         </div>
@@ -42,11 +42,11 @@ export default function Landing() {
                 Monitor reviews, draft thoughtful responses, and understand reputation trends from one clean workspace.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Button as={Link} to="/login" className="bg-white text-slate-950 hover:bg-slate-100 hover:text-slate-950">
+                <Button as={Link} to="/login" className="!bg-white !text-slate-950 hover:!bg-slate-100 hover:!text-slate-950">
                   Launch dashboard
                   <ArrowRight className="h-4 w-4" />
                 </Button>
-                <Button as="a" href="#pricing" variant="secondary" className="border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white">
+                <Button as="a" href="#pricing" variant="secondary" className="!border-white/20 !bg-white/10 !text-white hover:!bg-white/15 hover:!text-white">
                   View pricing
                 </Button>
               </div>
