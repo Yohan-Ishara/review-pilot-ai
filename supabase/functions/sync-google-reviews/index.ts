@@ -77,11 +77,9 @@ serve(async (req) => {
     ]
 
     const connection = await getGoogleConnection(supabase, user.id)
-    if (!connection || !location.google_connected || location.google_location_id?.startsWith('locations/mock')) {
-      const { error } = await supabase.from('reviews').upsert(mockRows, { onConflict: 'user_id,google_review_id' })
-      if (error) throw error
-
-      return new Response(JSON.stringify({ ok: true, synced: mockRows.length, mock: true }), {
+    if (!connection || !location.google_connected) {
+      return new Response(JSON.stringify({ ok: false, synced: 0, mock: false, error: 'No connected Google Business Profile location is linked.' }), {
+        status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }

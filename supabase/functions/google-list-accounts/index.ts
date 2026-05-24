@@ -5,7 +5,6 @@ import {
   getAuthenticatedUser,
   getGoogleConnection,
   googleJson,
-  mockAccounts,
 } from '../_shared/google.ts'
 
 serve(async (req) => {
@@ -16,7 +15,7 @@ serve(async (req) => {
     const connection = await getGoogleConnection(supabase, user.id)
 
     if (!connection) {
-      return new Response(JSON.stringify({ mock: true, accounts: mockAccounts() }), {
+      return new Response(JSON.stringify({ mock: false, accounts: [], connected: false }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
@@ -42,8 +41,8 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message, mock: true, accounts: mockAccounts() }), {
-      status: error.message === 'Unauthorized' ? 401 : 200,
+    return new Response(JSON.stringify({ error: error.message, mock: false, accounts: [] }), {
+      status: error.message === 'Unauthorized' ? 401 : 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }

@@ -6,7 +6,7 @@ import EmptyState from '../components/EmptyState'
 import PageHeader from '../components/PageHeader'
 import ReviewCard from '../components/ReviewCard'
 import { demoReviews } from '../lib/demoReviews'
-import { syncGoogleReviewsWithFallback } from '../lib/googleApi'
+import { loadMockGoogleReviews, syncGoogleReviews as syncGoogleReviewsFromGoogle } from '../lib/googleApi'
 import { generateReviewReplyWithFallback } from '../lib/mockAi'
 import { getSentiment } from '../lib/reviewHelpers'
 import { supabase } from '../lib/supabase'
@@ -124,7 +124,7 @@ export default function Reviews() {
     }
   }
 
-  async function syncGoogleReviews() {
+  async function handleSyncGoogleReviews() {
     const location = locations.find((item) => item.id === selectedLocation)
 
     if (!location) {
@@ -137,17 +137,33 @@ export default function Reviews() {
     setLastSyncStatus('')
 
     try {
-      const result = await syncGoogleReviewsWithFallback({ supabase, userId: user.id, location })
+      const result = await syncGoogleReviewsFromGoogle({ supabase, location })
       setLastSyncStatus(
-        result.mock
-          ? `Mock Google sync completed: ${result.synced || 0} reviews.`
-          : `Google sync completed: ${result.synced || 0} reviews.`,
+        `Google sync completed: ${result.synced || 0} reviews.`,
       )
       await loadData()
     } catch (syncError) {
-      setError(syncError.message)
+      setError(syncError.message || 'Google review sync failed. Confirm this location is linked to a verified Google Business Profile.')
     } finally {
       setSyncing(false)
+    }
+  }
+
+  async function loadDemoModeReviews() {
+    const location = locations.find((item) => item.id === selectedLocation)
+
+    setSaving(true)
+    setError('')
+
+    try {
+      const targetLocation = location || { id: await ensureLocation() }
+      const result = await loadMockGoogleReviews({ supabase, userId: user.id, location: targetLocation })
+      setLastSyncStatus(`Demo Mode loaded ${result.synced || 0} mock Google reviews.`)
+      await loadData()
+    } catch (demoError) {
+      setError(demoError.message)
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -193,13 +209,16 @@ export default function Reviews() {
               <RefreshCw className="h-4 w-4" />
               Refresh
             </Button>
-            <Button variant="secondary" onClick={syncGoogleReviews} loading={syncing} disabled={!selectedLocation}>
+            <Button variant="secondary" onClick={handleSyncGoogleReviews} loading={syncing} disabled={!selectedLocation}>
               <CloudDownload className="h-4 w-4" />
               Sync Google Reviews
             </Button>
             <Button onClick={loadDemoReviews} loading={saving}>
               <Database className="h-4 w-4" />
-              Load Demo Reviews
+              Demo Mode Reviews
+            </Button>
+            <Button variant="secondary" onClick={loadDemoModeReviews} loading={saving}>
+              Demo Mode
             </Button>
           </>
         }
@@ -242,7 +261,7 @@ export default function Reviews() {
       <div className="mb-4 flex items-center gap-2">
         <Badge tone="blue">{filteredReviews.length} shown</Badge>
         <Badge tone="gray">{reviews.length} total</Badge>
-        <Badge tone="yellow">Demo/testing mode available</Badge>
+        <Badge tone="yellow">Demo data requires Demo Mode</Badge>
       </div>
 
       {loading ? <p className="text-sm text-slate-500">Loading reviews...</p> : null}
@@ -250,7 +269,7 @@ export default function Reviews() {
         <EmptyState
           title="No matching reviews"
           description="Load demo reviews or change filters to populate this workspace."
-          action={<Button onClick={loadDemoReviews}>Load Demo Reviews</Button>}
+          action={<Button onClick={loadDemoReviews}>Demo Mode Reviews</Button>}
         />
       ) : (
         <div className="grid gap-4">

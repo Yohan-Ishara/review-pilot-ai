@@ -1,46 +1,31 @@
 import { mockGoogleAccounts, mockGoogleLocations, mockGoogleReviews } from './googleMockData'
 
-export async function invokeWithFallback(supabase, functionName, body, fallback) {
-  try {
-    const { data, error } = await supabase.functions.invoke(functionName, { body })
-    if (error) return fallback
-    return data || fallback
-  } catch {
-    return fallback
-  }
+export async function invokeGoogleFunction(supabase, functionName, body) {
+  const { data, error } = await supabase.functions.invoke(functionName, { body })
+  if (error) throw error
+  return data
 }
 
 export async function listGoogleAccounts(supabase) {
-  return invokeWithFallback(supabase, 'google-list-accounts', {}, { accounts: mockGoogleAccounts, mock: true })
+  return invokeGoogleFunction(supabase, 'google-list-accounts', {})
 }
 
 export async function listGoogleLocations(supabase, googleAccountId) {
-  return invokeWithFallback(
-    supabase,
-    'google-list-locations',
-    { googleAccountId },
-    { locations: mockGoogleLocations, mock: true },
-  )
+  return invokeGoogleFunction(supabase, 'google-list-locations', { googleAccountId })
 }
 
 export async function startGoogleOAuth(supabase) {
-  return invokeWithFallback(supabase, 'google-oauth-start', {}, {
-    authUrl: '',
-    mock: true,
-    message: 'Google OAuth is not deployed yet. Mock account and location lists are available for UI testing.',
+  return invokeGoogleFunction(supabase, 'google-oauth-start', {})
+}
+
+export async function syncGoogleReviews({ supabase, location }) {
+  return invokeGoogleFunction(supabase, 'sync-google-reviews', {
+    locationId: location.id,
+    googleLocationId: location.google_location_id,
   })
 }
 
-export async function syncGoogleReviewsWithFallback({ supabase, userId, location }) {
-  const data = await invokeWithFallback(
-    supabase,
-    'sync-google-reviews',
-    { locationId: location.id, googleLocationId: location.google_location_id },
-    { mock: true, reviews: mockGoogleReviews },
-  )
-
-  if (!data.mock) return data
-
+export async function loadMockGoogleReviews({ supabase, userId, location }) {
   const rows = mockGoogleReviews.map((review) => ({
     ...review,
     user_id: userId,
@@ -58,12 +43,17 @@ export async function syncGoogleReviewsWithFallback({ supabase, userId, location
 }
 
 export async function postGoogleReplyWithFallback({ supabase, review, finalReply }) {
-  const data = await invokeWithFallback(
-    supabase,
-    'post-google-review-reply',
-    { reviewId: review.id, reply: finalReply },
-    { ok: true, mock: true },
-  )
+  try {
+    return await invokeGoogleFunction(supabase, 'post-google-review-reply', { reviewId: review.id, reply: finalReply })
+  } catch {
+    return { ok: true, mock: true }
+  }
+}
 
-  return data
+export function getMockGoogleAccounts() {
+  return { accounts: mockGoogleAccounts, mock: true, demoMode: true }
+}
+
+export function getMockGoogleLocations() {
+  return { locations: mockGoogleLocations, mock: true, demoMode: true }
 }

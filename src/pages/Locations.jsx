@@ -4,7 +4,13 @@ import Badge from '../components/Badge'
 import Button from '../components/Button'
 import EmptyState from '../components/EmptyState'
 import PageHeader from '../components/PageHeader'
-import { listGoogleAccounts, listGoogleLocations, startGoogleOAuth } from '../lib/googleApi'
+import {
+  getMockGoogleAccounts,
+  getMockGoogleLocations,
+  listGoogleAccounts,
+  listGoogleLocations,
+  startGoogleOAuth,
+} from '../lib/googleApi'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 
@@ -58,8 +64,7 @@ export default function Locations() {
       return
     }
 
-    setGoogleStatus(result.message || 'Google OAuth is not configured yet. Using mock data for UI testing.')
-    await refreshGoogleAccounts()
+    setGoogleStatus(result.message || 'Google OAuth is not configured yet. Use Demo Mode only if you are testing.')
     setGoogleLoading(false)
   }
 
@@ -71,7 +76,11 @@ export default function Locations() {
       const result = await listGoogleAccounts(supabase)
       setGoogleAccounts(result.accounts || [])
       setSelectedGoogleAccountId((current) => current || result.accounts?.[0]?.google_account_id || '')
-      setGoogleStatus(result.mock ? 'Showing mock Google Business accounts.' : 'Google accounts loaded.')
+      setGoogleStatus(
+        result.connected === false
+          ? 'No Google account connected yet. Click Connect Google Business.'
+          : 'Google accounts loaded.',
+      )
     } catch (accountsError) {
       setError(accountsError.message)
     } finally {
@@ -88,12 +97,26 @@ export default function Locations() {
       const result = await listGoogleLocations(supabase, accountId)
       setGoogleLocations(result.locations || [])
       setSelectedGoogleLocationId((current) => current || result.locations?.[0]?.google_location_id || '')
-      setGoogleStatus(result.mock ? 'Showing mock Google locations.' : 'Google locations loaded.')
+      setGoogleStatus(
+        result.locations?.length
+          ? 'Google locations loaded.'
+          : 'No verified Google Business Profile locations found for this Google account. Please connect an account that manages a verified Google Business Profile.',
+      )
     } catch (locationsError) {
       setError(locationsError.message)
     } finally {
       setGoogleLoading(false)
     }
+  }
+
+  function enableDemoMode() {
+    const accountsResult = getMockGoogleAccounts()
+    const locationsResult = getMockGoogleLocations()
+    setGoogleAccounts(accountsResult.accounts)
+    setGoogleLocations(locationsResult.locations)
+    setSelectedGoogleAccountId(accountsResult.accounts[0]?.google_account_id || '')
+    setSelectedGoogleLocationId(locationsResult.locations[0]?.google_location_id || '')
+    setGoogleStatus('Demo Mode enabled. Mock Google accounts and locations are visible for developer/admin testing.')
   }
 
   async function addLocation(event) {
@@ -233,7 +256,7 @@ export default function Locations() {
           <div>
             <h2 className="text-lg font-bold text-slate-950">Google Business Profile</h2>
             <p className="mt-1 text-sm text-slate-600">
-              OAuth and API calls run through Supabase Edge Functions. Mock data keeps this screen testable before Google approval.
+              OAuth and API calls run through Supabase Edge Functions. Demo data is available only through Demo Mode.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -244,6 +267,9 @@ export default function Locations() {
             <Button variant="secondary" onClick={() => refreshGoogleLocations()} loading={googleLoading} disabled={!selectedGoogleAccountId}>
               <MapPin className="h-4 w-4" />
               List Locations
+            </Button>
+            <Button variant="secondary" onClick={enableDemoMode}>
+              Demo Mode
             </Button>
           </div>
         </div>
