@@ -31,6 +31,72 @@ function fallbackReply({ reviewText, rating, businessName, preferredTone }: Payl
   return `Thank you for taking the time to leave a review. We are glad you had a positive experience with ${name}, and we appreciate your support. We look forward to serving you again.`
 }
 
+function buildPrompt({ reviewText, rating, businessName, preferredTone }: Payload) {
+  const tone = preferredTone || 'professional'
+  const name = businessName || 'the business'
+
+  return `
+Write a short public reply to a Google review for a local business.
+
+Business name: ${name}
+Preferred tone: ${tone}
+Rating: ${rating}/5
+Review text: ${reviewText}
+
+Rules:
+- Maximum 100 words.
+- Sound natural and human.
+- Do not overpromise.
+- Do not mention discounts, refunds, legal issues, or private customer data.
+- For 1-2 star reviews, acknowledge the issue and invite the customer to contact the business offline.
+- For 5 star reviews, thank the customer naturally.
+- Return only the reply text, with no labels or markdown.
+`.trim()
+}
+
+function extractGeminiText(data: any) {
+  return data?.candidates?.[0]?.content?.parts
+    ?.map((part: { text?: string }) => part.text || '')
+    .join('')
+    .trim()
+}
+
+async function generateWithGemini(payload: Payload, apiKey: string) {
+  const model = Deno.env.get('GEMINI_MODEL') || 'gemini-2.5-flash'
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey,
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: buildPrompt(payload) }],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.4,
+          topP: 0.9,
+          maxOutputTokens: 160,
+        },
+      }),
+    },
+  )
+
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    throw new Error(data.error?.message || data.error || 'Gemini request failed')
+  }
+
+  const reply = extractGeminiText(data)
+  if (!reply) throw new Error('Gemini returned an empty reply')
+  return reply.split(/\s+/).slice(0, 100).join(' ')
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -47,18 +113,18 @@ serve(async (req) => {
       })
     }
 
-    // TODO: Integrate OpenAI or Gemini here using AI_API_KEY.
-    // Keep this server-side so API keys are never exposed to the Vite frontend.
-    // Suggested prompt constraints:
-    // - max 100 words
-    // - do not overpromise
-    // - for negative reviews, acknowledge issue and invite offline contact
-    // - for positive reviews, thank customer naturally
     if (apiKey) {
-      // Placeholder: replace fallbackReply with a real provider call.
+      try {
+        const reply = await generateWithGemini(payload, apiKey)
+        return new Response(JSON.stringify({ reply, provider: 'gemini', mock: false }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      } catch (geminiError) {
+        console.error('Gemini reply generation failed:', geminiError.message)
+      }
     }
 
-    return new Response(JSON.stringify({ reply: fallbackReply(payload) }), {
+    return new Response(JSON.stringify({ reply: fallbackReply(payload), provider: 'fallback', mock: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {
