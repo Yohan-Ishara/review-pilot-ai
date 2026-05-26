@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { MapPin, Plus, RefreshCw } from 'lucide-react'
 import Badge from '../components/Badge'
 import Button from '../components/Button'
@@ -17,6 +18,7 @@ import { useAuth } from '../hooks/useAuth'
 
 export default function Locations() {
   const { user } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [locations, setLocations] = useState([])
   const [form, setForm] = useState({ name: '', address: '', google_location_id: '' })
   const [googleAccounts, setGoogleAccounts] = useState([])
@@ -54,6 +56,50 @@ export default function Locations() {
   useEffect(() => {
     loadLocations()
   }, [loadLocations])
+
+  useEffect(() => {
+    const googleResult = searchParams.get('google')
+    const googleMessage = searchParams.get('message')
+    if (!googleResult) return
+
+    async function handleGoogleRedirect() {
+      if (googleResult === 'connected') {
+        setGoogleStatus('Google account connected. Loading Google Business accounts...')
+        setGoogleLoading(true)
+        setError('')
+
+        try {
+          const result = await listGoogleAccounts(supabase)
+          const accounts = result.accounts || []
+          setGoogleAccounts(accounts)
+          setSelectedGoogleAccountId(accounts[0]?.google_account_id || '')
+          setGoogleStatus(
+            accounts.length
+              ? 'Google account connected. Select an account, list locations, then link a verified Google location.'
+              : 'Google account connected, but no Google Business Profile accounts were found for this Google login.',
+          )
+        } catch (accountsError) {
+          setError(accountsError.message)
+        } finally {
+          setGoogleLoading(false)
+          setSearchParams({}, { replace: true })
+        }
+        return
+      }
+
+      const messages = {
+        mock: 'Google OAuth secrets are not fully configured in Supabase Edge Function secrets.',
+        missing_code: 'Google did not return the OAuth code. Please try connecting again.',
+        invalid_state: 'Google connection expired or state did not match. Please try connecting again.',
+        error: googleMessage ? `Google connection failed: ${googleMessage}` : 'Google connection failed. Please try again.',
+      }
+
+      setGoogleStatus(messages[googleResult] || 'Google connection did not complete. Please try again.')
+      setSearchParams({}, { replace: true })
+    }
+
+    handleGoogleRedirect()
+  }, [searchParams, setSearchParams])
 
   async function connectGoogleBusiness() {
     setGoogleLoading(true)

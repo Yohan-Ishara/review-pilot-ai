@@ -37,7 +37,7 @@ serve(async (req) => {
       { onConflict: 'user_id,google_account_id' },
     )
 
-    return new Response(JSON.stringify({ mock: false, accounts }), {
+    return new Response(JSON.stringify({ mock: false, connected: true, accounts }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {

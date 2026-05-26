@@ -11,10 +11,12 @@ serve(async (req) => {
   const error = url.searchParams.get('error')
 
   if (error) {
+    console.error('Google OAuth returned error', { error })
     return Response.redirect(`${appUrl}/locations?google=error&message=${encodeURIComponent(error)}`, 302)
   }
 
   if (!code || !state) {
+    console.error('Google OAuth callback missing code or state', { hasCode: Boolean(code), hasState: Boolean(state) })
     return Response.redirect(`${appUrl}/locations?google=missing_code`, 302)
   }
 
@@ -25,6 +27,13 @@ serve(async (req) => {
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
   if (!clientId || !clientSecret || !redirectUri || !supabaseUrl || !serviceRoleKey) {
+    console.error('Google OAuth callback missing required secrets', {
+      hasClientId: Boolean(clientId),
+      hasClientSecret: Boolean(clientSecret),
+      hasRedirectUri: Boolean(redirectUri),
+      hasSupabaseUrl: Boolean(supabaseUrl),
+      hasServiceRoleKey: Boolean(serviceRoleKey),
+    })
     return Response.redirect(`${appUrl}/locations?google=mock`, 302)
   }
 
@@ -38,6 +47,7 @@ serve(async (req) => {
       .single()
 
     if (stateError || !stateRow) {
+      console.error('Google OAuth callback invalid or expired state', { stateError: stateError?.message })
       return Response.redirect(`${appUrl}/locations?google=invalid_state`, 302)
     }
 
@@ -55,6 +65,7 @@ serve(async (req) => {
 
     const tokenData = await tokenResponse.json()
     if (!tokenResponse.ok) {
+      console.error('Google OAuth token exchange failed', tokenData)
       throw new Error(tokenData.error_description || tokenData.error || 'Google token exchange failed')
     }
 
@@ -84,8 +95,14 @@ serve(async (req) => {
 
     await supabase.from('google_oauth_states').delete().eq('state', state)
 
+    console.log('Google OAuth connected', {
+      userId: stateRow.user_id,
+      email: userInfo.email || null,
+      hasRefreshToken: Boolean(tokenData.refresh_token),
+    })
     return Response.redirect(`${appUrl}/locations?google=connected`, 302)
   } catch (callbackError) {
+    console.error('Google OAuth callback failed', { message: callbackError.message })
     return Response.redirect(`${appUrl}/locations?google=error&message=${encodeURIComponent(callbackError.message)}`, 302)
   }
 })
