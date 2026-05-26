@@ -47,8 +47,15 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message, mock: false, googleAccountId, locations: [] }), {
-      status: error.message === 'Unauthorized' ? 401 : 500,
+    console.error('google-list-locations failed', { googleAccountId, message: error.message })
+    return new Response(JSON.stringify({
+      error: error.message,
+      message: `No verified Google Business Profile locations could be loaded for this account: ${error.message}`,
+      mock: false,
+      googleAccountId,
+      locations: [],
+    }), {
+      status: error.message === 'Unauthorized' ? 401 : 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }

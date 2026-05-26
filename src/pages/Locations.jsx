@@ -74,9 +74,9 @@ export default function Locations() {
           setGoogleAccounts(accounts)
           setSelectedGoogleAccountId(accounts[0]?.google_account_id || '')
           setGoogleStatus(
-            accounts.length
+            result.message || (accounts.length
               ? 'Google account connected. Select an account, list locations, then link a verified Google location.'
-              : 'Google account connected, but no Google Business Profile accounts were found for this Google login.',
+              : 'Google account connected, but no Google Business Profile accounts were found for this Google login.'),
           )
         } catch (accountsError) {
           setError(accountsError.message)
@@ -124,9 +124,9 @@ export default function Locations() {
       setGoogleAccounts(result.accounts || [])
       setSelectedGoogleAccountId((current) => current || result.accounts?.[0]?.google_account_id || '')
       setGoogleStatus(
-        result.connected === false
+        result.message || (result.connected === false
           ? 'No Google account connected yet. Click Connect Google Business.'
-          : 'Google accounts loaded.',
+          : 'Google accounts loaded.'),
       )
     } catch (accountsError) {
       setError(accountsError.message)
@@ -145,9 +145,9 @@ export default function Locations() {
       setGoogleLocations(result.locations || [])
       setSelectedGoogleLocationId((current) => current || result.locations?.[0]?.google_location_id || '')
       setGoogleStatus(
-        result.locations?.length
+        result.message || (result.locations?.length
           ? 'Google locations loaded.'
-          : 'No verified Google Business Profile locations found for this Google account. Please connect an account that manages a verified Google Business Profile.',
+          : 'No verified Google Business Profile locations found for this Google account. Please connect an account that manages a verified Google Business Profile.'),
       )
     } catch (locationsError) {
       setError(locationsError.message)

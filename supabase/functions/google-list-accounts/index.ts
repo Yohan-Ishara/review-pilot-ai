@@ -27,22 +27,38 @@ serve(async (req) => {
       google_account_name: account.accountName || account.name,
     }))
 
-    await supabase.from('google_business_accounts').upsert(
-      accounts.map((account: any) => ({
-        user_id: user.id,
-        google_connection_id: connection.id,
-        google_account_id: account.google_account_id,
-        google_account_name: account.google_account_name,
-      })),
-      { onConflict: 'user_id,google_account_id' },
-    )
+    if (accounts.length) {
+      await supabase.from('google_business_accounts').upsert(
+        accounts.map((account: any) => ({
+          user_id: user.id,
+          google_connection_id: connection.id,
+          google_account_id: account.google_account_id,
+          google_account_name: account.google_account_name,
+        })),
+        { onConflict: 'user_id,google_account_id' },
+      )
+    }
 
-    return new Response(JSON.stringify({ mock: false, connected: true, accounts }), {
+    return new Response(JSON.stringify({
+      mock: false,
+      connected: true,
+      accounts,
+      message: accounts.length
+        ? 'Google Business accounts loaded.'
+        : 'Google account connected, but no Google Business Profile accounts were found for this login.',
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message, mock: false, accounts: [] }), {
-      status: error.message === 'Unauthorized' ? 401 : 500,
+    console.error('google-list-accounts failed', { message: error.message })
+    return new Response(JSON.stringify({
+      error: error.message,
+      message: `Google account connected, but Google Business accounts could not be loaded: ${error.message}`,
+      mock: false,
+      connected: true,
+      accounts: [],
+    }), {
+      status: error.message === 'Unauthorized' ? 401 : 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }

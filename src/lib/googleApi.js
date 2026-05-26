@@ -2,8 +2,22 @@ import { mockGoogleAccounts, mockGoogleLocations, mockGoogleReviews } from './go
 
 export async function invokeGoogleFunction(supabase, functionName, body) {
   const { data, error } = await supabase.functions.invoke(functionName, { body })
-  if (error) throw error
+  if (error) {
+    const message = await readFunctionError(error)
+    throw new Error(message || error.message || `${functionName} failed`)
+  }
   return data
+}
+
+async function readFunctionError(error) {
+  try {
+    const context = error.context
+    if (!context) return ''
+    const payload = await context.json()
+    return payload?.message || payload?.error || ''
+  } catch {
+    return ''
+  }
 }
 
 export async function listGoogleAccounts(supabase) {
